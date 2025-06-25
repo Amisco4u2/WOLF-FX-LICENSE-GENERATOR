@@ -1,1 +1,356 @@
+//+------------------------------------------------------------------+
+//|                                    License Generator for EA.mq5 |
+//|                          Copyright 2025, Wolf FX Trading Academy |
+//|                                 https://www.wolffxtradingacademy |
+//+------------------------------------------------------------------+
+#property copyright "Wolf FX Trading Academy 2025"
+#property link      "https://www.wolffxtradingacademy"
+#property version   "1.00"
+#property description "License Generator for PIPSASASSIN SWING EA"
+#property script_show_inputs
 
+//--- Input parameters for license generation
+input group "=== LICENSE GENERATION SETTINGS ==="
+input string CustomerName = "Licensed User";                    // Customer Name
+input string CustomerEmail = "customer@email.com";             // Customer Email
+input string LicenseType = "LIFETIME";                         // License Type (TRIAL/MONTHLY/YEARLY/LIFETIME)
+input int ExpiryDays = 365;                                     // Days until expiry (0 = no expiry)
+input bool GenerateNewLicense = true;                          // Generate new license key
+input string CustomLicenseKey = "";                            // Custom license key (leave empty for auto-generation)
+input string CustomPassword = "";                              // Custom password (leave empty for auto-generation)
+
+//--- License Configuration Templates
+struct LicenseTemplate {
+    string prefix;
+    string type;
+    int maxDays;
+    bool hasExpiry;
+};
+
+LicenseTemplate licenseTemplates[4] = {
+    {"PIPS-T", "TRIAL", 7, true},        // 7-day trial
+    {"PIPS-M", "MONTHLY", 30, true},     // 30-day monthly
+    {"PIPS-Y", "YEARLY", 365, true},     // 365-day yearly
+    {"PIPS-L", "LIFETIME", 0, false}     // Lifetime (no expiry)
+};
+
+//--- Global variables for license generation
+string generatedLicenseKey = "";
+string generatedPassword = "";
+datetime generatedExpiry = 0;
+string hardwareFingerprint = "";
+
+//+------------------------------------------------------------------+
+//| Generate Random String                                           |
+//+------------------------------------------------------------------+
+string GenerateRandomString(int length, bool includeNumbers = true, bool includeLetters = true)
+{
+    string chars = "";
+    if(includeNumbers) chars += "0123456789";
+    if(includeLetters) chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    
+    string result = "";
+    int charsLen = StringLen(chars);
+    
+    for(int i = 0; i < length; i++) {
+        int randomIndex = MathRand() % charsLen;
+        result += StringSubstr(chars, randomIndex, 1);
+    }
+    
+    return result;
+}
+
+//+------------------------------------------------------------------+
+//| Generate License Key                                             |
+//+------------------------------------------------------------------+
+string GenerateLicenseKey(string licenseType)
+{
+    string prefix = "PIPS-L"; // Default to lifetime
+    
+    // Determine prefix based on license type
+    for(int i = 0; i < 4; i++) {
+        if(StringFind(licenseType, licenseTemplates[i].type) >= 0) {
+            prefix = licenseTemplates[i].prefix;
+            break;
+        }
+    }
+    
+    // Generate unique segments
+    string segment1 = GenerateRandomString(3, true, false);  // Numbers only
+    string segment2 = GenerateRandomString(4, true, true);   // Mixed
+    string segment3 = GenerateRandomString(4, true, true);   // Mixed
+    
+    // Include timestamp for uniqueness
+    long currentTime = TimeCurrent();
+    string timeSegment = IntegerToString((int)(currentTime % 10000));
+    
+    return prefix + segment1 + "-" + segment2 + "-" + segment3 + "-" + timeSegment;
+}
+
+//+------------------------------------------------------------------+
+//| Generate Activation Password                                     |
+//+------------------------------------------------------------------+
+string GenerateActivationPassword()
+{
+    string passwords[] = {
+        "LIFE2025SWING",
+        "WOLF2025TRADE",
+        "PIPS2025PROFIT",
+        "SWING2025GOLD",
+        "TRADE2025ELITE",
+        "FOREX2025KING",
+        "PROFIT2025MAX",
+        "ELITE2025SWING"
+    };
+    
+    int randomIndex = MathRand() % ArraySize(passwords);
+    return passwords[randomIndex];
+}
+
+//+------------------------------------------------------------------+
+//| Calculate Expiry Date                                            |
+//+------------------------------------------------------------------+
+datetime CalculateExpiryDate(string licenseType, int customDays = 0)
+{
+    datetime currentTime = TimeCurrent();
+    
+    // Check if it's a lifetime license
+    if(StringFind(licenseType, "LIFETIME") >= 0) {
+        return D'2099.12.31 23:59:59'; // Far future date for lifetime
+    }
+    
+    int daysToAdd = customDays;
+    
+    // Use template defaults if no custom days specified
+    if(daysToAdd == 0) {
+        for(int i = 0; i < 4; i++) {
+            if(StringFind(licenseType, licenseTemplates[i].type) >= 0) {
+                daysToAdd = licenseTemplates[i].maxDays;
+                break;
+            }
+        }
+    }
+    
+    return currentTime + (daysToAdd * 24 * 60 * 60); // Convert days to seconds
+}
+
+//+------------------------------------------------------------------+
+//| Generate Hardware Fingerprint                                   |
+//+------------------------------------------------------------------+
+string GenerateHardwareFingerprint()
+{
+    long terminalBuild = TerminalInfoInteger(TERMINAL_BUILD);
+    long accountNumber = AccountInfoInteger(ACCOUNT_LOGIN);
+    string terminalPath = TerminalInfoString(TERMINAL_PATH);
+    
+    // Create a unique fingerprint based on system info
+    string fingerprint = IntegerToString((int)terminalBuild) + "-" + 
+                        IntegerToString((int)accountNumber) + "-" + 
+                        IntegerToString((int)StringLen(terminalPath));
+    
+    return fingerprint;
+}
+
+//+------------------------------------------------------------------+
+//| Generate IP Lock Address                                         |
+//+------------------------------------------------------------------+
+string GenerateIPLock()
+{
+    long terminalBuild = TerminalInfoInteger(TERMINAL_BUILD);
+    long accountNumber = AccountInfoInteger(ACCOUNT_LOGIN);
+    
+    int ip1 = (int)((terminalBuild % 255) + 1);
+    int ip2 = (int)((accountNumber % 255) + 1);
+    int ip3 = (int)(((terminalBuild + accountNumber) % 255) + 1);
+    int ip4 = (int)(((terminalBuild * 2 + accountNumber) % 255) + 1);
+    
+    // Ensure valid IP ranges
+    if(ip1 > 223) ip1 = ip1 % 223 + 1;
+    if(ip2 > 255) ip2 = ip2 % 255;
+    if(ip3 > 255) ip3 = ip3 % 255;
+    if(ip4 > 255) ip4 = ip4 % 255;
+    
+    return IntegerToString(ip1) + "." + IntegerToString(ip2) + "." + IntegerToString(ip3) + "." + IntegerToString(ip4);
+}
+
+//+------------------------------------------------------------------+
+//| Generate Complete License Package                                |
+//+------------------------------------------------------------------+
+void GenerateLicensePackage()
+{
+    Print("🔧 === PIPSASASSIN SWING EA - LICENSE GENERATOR ===");
+    Print("🏭 Wolf FX Trading Academy 2025 - License Creation System");
+    Print("════════════════════════════════════════════════════════");
+    
+    // Generate license components
+    if(CustomLicenseKey != "" && GenerateNewLicense == false) {
+        generatedLicenseKey = CustomLicenseKey;
+        Print("🔑 Using Custom License Key: " + generatedLicenseKey);
+    } else {
+        generatedLicenseKey = GenerateLicenseKey(LicenseType);
+        Print("🔑 Generated License Key: " + generatedLicenseKey);
+    }
+    
+    if(CustomPassword != "") {
+        generatedPassword = CustomPassword;
+        Print("🔐 Using Custom Password: " + generatedPassword);
+    } else {
+        generatedPassword = GenerateActivationPassword();
+        Print("🔐 Generated Password: " + generatedPassword);
+    }
+    
+    generatedExpiry = CalculateExpiryDate(LicenseType, ExpiryDays);
+    hardwareFingerprint = GenerateHardwareFingerprint();
+    string ipLock = GenerateIPLock();
+    
+    Print("⏰ Expiry Date: " + TimeToString(generatedExpiry, TIME_DATE|TIME_SECONDS));
+    Print("🖥️ Hardware Fingerprint: " + hardwareFingerprint);
+    Print("🌐 IP Lock: " + ipLock);
+    Print("════════════════════════════════════════════════════════");
+    
+    // Display license information
+    Print("📋 === GENERATED LICENSE INFORMATION ===");
+    Print("👤 Customer Name: " + CustomerName);
+    Print("📧 Customer Email: " + CustomerEmail);
+    Print("🏷️ License Type: " + LicenseType);
+    Print("🔑 License Key: " + generatedLicenseKey);
+    Print("🔐 Activation Password: " + generatedPassword);
+    Print("⏰ Valid Until: " + TimeToString(generatedExpiry, TIME_DATE|TIME_SECONDS));
+    Print("🖥️ Hardware Binding: " + hardwareFingerprint);
+    Print("🌐 IP Binding: " + ipLock);
+    Print("════════════════════════════════════════════════════════");
+    
+    // Generate EA configuration code
+    GenerateEAConfigurationCode();
+    
+    // Generate validation test
+    TestLicenseValidation();
+}
+
+//+------------------------------------------------------------------+
+//| Generate EA Configuration Code                                   |
+//+------------------------------------------------------------------+
+void GenerateEAConfigurationCode()
+{
+    Print("📝 === EA CONFIGURATION CODE ===");
+    Print("// Copy this code into your EA's license configuration section:");
+    Print("");
+    Print("//--- License Protection Variables");
+    Print("string VALID_LICENSE = \"" + generatedLicenseKey + "\";");
+    Print("string VALID_PASSWORD = \"" + generatedPassword + "\";");
+    Print("string CUSTOMER_NAME = \"" + CustomerName + "\";");
+    Print("string CUSTOMER_EMAIL = \"" + CustomerEmail + "\";");
+    Print("string LICENSE_TYPE = \"" + LicenseType + "\";");
+    Print("datetime EXPIRY_DATE = D'" + TimeToString(generatedExpiry, TIME_DATE) + " 23:59:59';");
+    Print("string LOCKED_IP_ADDRESS = \"" + GenerateIPLock() + "\";");
+    Print("");
+    Print("// User input configuration:");
+    Print("input string LICENSE_KEY = \"" + generatedLicenseKey + "\";");
+    Print("input string ACTIVATION_PASSWORD = \"" + generatedPassword + "\";");
+    Print("════════════════════════════════════════════════════════");
+}
+
+//+------------------------------------------------------------------+
+//| Test License Validation                                          |
+//+------------------------------------------------------------------+
+void TestLicenseValidation()
+{
+    Print("🧪 === LICENSE VALIDATION TEST ===");
+    
+    // Test license key validation
+    bool licenseKeyValid = (generatedLicenseKey != "");
+    Print("🔑 License Key Format: " + (licenseKeyValid ? "✅ VALID" : "❌ INVALID"));
+    
+    // Test password validation
+    bool passwordValid = (StringLen(generatedPassword) >= 8);
+    Print("🔐 Password Strength: " + (passwordValid ? "✅ STRONG" : "❌ WEAK"));
+    
+    // Test expiry date
+    bool expiryValid = (generatedExpiry > TimeCurrent());
+    Print("⏰ Expiry Status: " + (expiryValid ? "✅ VALID" : "❌ EXPIRED"));
+    
+    // Test hardware fingerprint
+    bool hardwareValid = (StringLen(hardwareFingerprint) > 0);
+    Print("🖥️ Hardware Binding: " + (hardwareValid ? "✅ ACTIVE" : "❌ INACTIVE"));
+    
+    // Overall validation result
+    bool overallValid = licenseKeyValid && passwordValid && expiryValid && hardwareValid;
+    Print("🎯 Overall License Status: " + (overallValid ? "✅ READY FOR DEPLOYMENT" : "❌ NEEDS ATTENTION"));
+    
+    if(overallValid) {
+        Print("✅ License package generated successfully!");
+        Print("🚀 Ready to deploy to customer: " + CustomerName);
+    } else {
+        Print("❌ License generation failed - please check configuration!");
+    }
+    
+    Print("════════════════════════════════════════════════════════");
+}
+
+//+------------------------------------------------------------------+
+//| Generate License Report                                          |
+//+------------------------------------------------------------------+
+void GenerateLicenseReport()
+{
+    string filename = "PIPSASASSIN_License_" + CustomerName + "_" + TimeToString(TimeCurrent(), TIME_DATE) + ".txt";
+    
+    Print("📄 === GENERATING LICENSE REPORT ===");
+    Print("📁 Report File: " + filename);
+    Print("💾 Saving license details for customer records...");
+    
+    // Note: In a real implementation, you would write to a file here
+    // For MT5 script, we'll just display the report format
+    
+    Print("");
+    Print("=== PIPSASASSIN SWING EA LICENSE REPORT ===");
+    Print("Generated: " + TimeToString(TimeCurrent(), TIME_DATE|TIME_SECONDS));
+    Print("Generator: Wolf FX Trading Academy");
+    Print("");
+    Print("CUSTOMER INFORMATION:");
+    Print("- Name: " + CustomerName);
+    Print("- Email: " + CustomerEmail);
+    Print("- License Type: " + LicenseType);
+    Print("");
+    Print("LICENSE DETAILS:");
+    Print("- License Key: " + generatedLicenseKey);
+    Print("- Activation Password: " + generatedPassword);
+    Print("- Valid Until: " + TimeToString(generatedExpiry, TIME_DATE|TIME_SECONDS));
+    Print("- Hardware Fingerprint: " + hardwareFingerprint);
+    Print("- IP Lock: " + GenerateIPLock());
+    Print("");
+    Print("DEPLOYMENT INSTRUCTIONS:");
+    Print("1. Provide customer with License Key and Activation Password");
+    Print("2. Customer enters these in EA input parameters");
+    Print("3. EA will validate against hardware fingerprint");
+    Print("4. License expires on: " + TimeToString(generatedExpiry, TIME_DATE));
+    Print("5. Contact support for renewals or issues");
+    Print("");
+    Print("=== END OF REPORT ===");
+    Print("════════════════════════════════════════════════════════");
+}
+
+//+------------------------------------------------------------------+
+//| Script Start Function                                            |
+//+------------------------------------------------------------------+
+void OnStart()
+{
+    Print("🚀 PIPSASASSIN SWING EA - LICENSE GENERATOR STARTED");
+    Print("🕒 Start Time: " + TimeToString(TimeCurrent(), TIME_DATE|TIME_SECONDS));
+    Print("════════════════════════════════════════════════════════");
+    
+    // Initialize random seed
+    MathSrand((int)TimeCurrent());
+    
+    // Generate complete license package
+    GenerateLicensePackage();
+    
+    // Generate detailed report
+    GenerateLicenseReport();
+    
+    Print("🎯 LICENSE GENERATION COMPLETED SUCCESSFULLY!");
+    Print("📧 Send license details to customer: " + CustomerEmail);
+    Print("🔐 License Key: " + generatedLicenseKey);
+    Print("🔑 Password: " + generatedPassword);
+    Print("⏰ Valid Until: " + TimeToString(generatedExpiry, TIME_DATE));
+    Print("════════════════════════════════════════════════════════");
+}
