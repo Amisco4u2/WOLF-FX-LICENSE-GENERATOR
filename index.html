@@ -1,356 +1,1626 @@
-//+------------------------------------------------------------------+
-//|                                    License Generator for EA.mq5 |
-//|                          Copyright 2025, Wolf FX Trading Academy |
-//|                                 https://www.wolffxtradingacademy |
-//+------------------------------------------------------------------+
-#property copyright "Wolf FX Trading Academy 2025"
-#property link      "https://www.wolffxtradingacademy"
-#property version   "1.00"
-#property description "License Generator for PIPSASASSIN SWING EA"
-#property script_show_inputs
-
-//--- Input parameters for license generation
-input group "=== LICENSE GENERATION SETTINGS ==="
-input string CustomerName = "Licensed User";                    // Customer Name
-input string CustomerEmail = "customer@email.com";             // Customer Email
-input string LicenseType = "LIFETIME";                         // License Type (TRIAL/MONTHLY/YEARLY/LIFETIME)
-input int ExpiryDays = 365;                                     // Days until expiry (0 = no expiry)
-input bool GenerateNewLicense = true;                          // Generate new license key
-input string CustomLicenseKey = "";                            // Custom license key (leave empty for auto-generation)
-input string CustomPassword = "";                              // Custom password (leave empty for auto-generation)
-
-//--- License Configuration Templates
-struct LicenseTemplate {
-    string prefix;
-    string type;
-    int maxDays;
-    bool hasExpiry;
-};
-
-LicenseTemplate licenseTemplates[4] = {
-    {"PIPS-T", "TRIAL", 7, true},        // 7-day trial
-    {"PIPS-M", "MONTHLY", 30, true},     // 30-day monthly
-    {"PIPS-Y", "YEARLY", 365, true},     // 365-day yearly
-    {"PIPS-L", "LIFETIME", 0, false}     // Lifetime (no expiry)
-};
-
-//--- Global variables for license generation
-string generatedLicenseKey = "";
-string generatedPassword = "";
-datetime generatedExpiry = 0;
-string hardwareFingerprint = "";
-
-//+------------------------------------------------------------------+
-//| Generate Random String                                           |
-//+------------------------------------------------------------------+
-string GenerateRandomString(int length, bool includeNumbers = true, bool includeLetters = true)
-{
-    string chars = "";
-    if(includeNumbers) chars += "0123456789";
-    if(includeLetters) chars += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    
-    string result = "";
-    int charsLen = StringLen(chars);
-    
-    for(int i = 0; i < length; i++) {
-        int randomIndex = MathRand() % charsLen;
-        result += StringSubstr(chars, randomIndex, 1);
-    }
-    
-    return result;
-}
-
-//+------------------------------------------------------------------+
-//| Generate License Key                                             |
-//+------------------------------------------------------------------+
-string GenerateLicenseKey(string licenseType)
-{
-    string prefix = "PIPS-L"; // Default to lifetime
-    
-    // Determine prefix based on license type
-    for(int i = 0; i < 4; i++) {
-        if(StringFind(licenseType, licenseTemplates[i].type) >= 0) {
-            prefix = licenseTemplates[i].prefix;
-            break;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIPSASASSIN SWING EA - License Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    }
-    
-    // Generate unique segments
-    string segment1 = GenerateRandomString(3, true, false);  // Numbers only
-    string segment2 = GenerateRandomString(4, true, true);   // Mixed
-    string segment3 = GenerateRandomString(4, true, true);   // Mixed
-    
-    // Include timestamp for uniqueness
-    long currentTime = TimeCurrent();
-    string timeSegment = IntegerToString((int)(currentTime % 10000));
-    
-    return prefix + segment1 + "-" + segment2 + "-" + segment3 + "-" + timeSegment;
-}
 
-//+------------------------------------------------------------------+
-//| Generate Activation Password                                     |
-//+------------------------------------------------------------------+
-string GenerateActivationPassword()
-{
-    string passwords[] = {
-        "LIFE2025SWING",
-        "WOLF2025TRADE",
-        "PIPS2025PROFIT",
-        "SWING2025GOLD",
-        "TRADE2025ELITE",
-        "FOREX2025KING",
-        "PROFIT2025MAX",
-        "ELITE2025SWING"
-    };
-    
-    int randomIndex = MathRand() % ArraySize(passwords);
-    return passwords[randomIndex];
-}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
 
-//+------------------------------------------------------------------+
-//| Calculate Expiry Date                                            |
-//+------------------------------------------------------------------+
-datetime CalculateExpiryDate(string licenseType, int customDays = 0)
-{
-    datetime currentTime = TimeCurrent();
-    
-    // Check if it's a lifetime license
-    if(StringFind(licenseType, "LIFETIME") >= 0) {
-        return D'2099.12.31 23:59:59'; // Far future date for lifetime
-    }
-    
-    int daysToAdd = customDays;
-    
-    // Use template defaults if no custom days specified
-    if(daysToAdd == 0) {
-        for(int i = 0; i < 4; i++) {
-            if(StringFind(licenseType, licenseTemplates[i].type) >= 0) {
-                daysToAdd = licenseTemplates[i].maxDays;
-                break;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ffd700, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(45deg, #ffd700, #ff6b6b);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ffd700;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ffd700, #ff6b6b);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff4757, #ff3838);
+            color: white;
+        }
+
+        .results-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #ffd700;
+        }
+
+        .license-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #00ff88;
+        }
+
+        .license-card h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .license-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .info-label {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            border-left: 4px solid #ffd700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border-top: 4px solid #ffd700;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .license-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .license-table th,
+        .license-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .license-table th {
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .status-active {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .status-expired {
+            color: #ff4757;
+            font-weight: bold;
+        }
+
+        .status-trial {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #fff;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background: rgba(0, 255, 136, 0.2);
+            border-left: 4px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .alert-error {
+            background: rgba(255, 71, 87, 0.2);
+            border-left: 4px solid #ff4757;
+            color: #ff4757;
+        }
+
+        .alert-warning {
+            background: rgba(255, 215, 0, 0.2);
+            border-left: 4px solid #ffd700;
+            color: #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
             }
         }
-    }
-    
-    return currentTime + (daysToAdd * 24 * 60 * 60); // Convert days to seconds
-}
 
-//+------------------------------------------------------------------+
-//| Generate Hardware Fingerprint                                   |
-//+------------------------------------------------------------------+
-string GenerateHardwareFingerprint()
-{
-    long terminalBuild = TerminalInfoInteger(TERMINAL_BUILD);
-    long accountNumber = AccountInfoInteger(ACCOUNT_LOGIN);
-    string terminalPath = TerminalInfoString(TERMINAL_PATH);
-    
-    // Create a unique fingerprint based on system info
-    string fingerprint = IntegerToString((int)terminalBuild) + "-" + 
-                        IntegerToString((int)accountNumber) + "-" + 
-                        IntegerToString((int)StringLen(terminalPath));
-    
-    return fingerprint;
-}
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffd700;
+            animation: spin 1s ease-in-out infinite;
+        }
 
-//+------------------------------------------------------------------+
-//| Generate IP Lock Address                                         |
-//+------------------------------------------------------------------+
-string GenerateIPLock()
-{
-    long terminalBuild = TerminalInfoInteger(TERMINAL_BUILD);
-    long accountNumber = AccountInfoInteger(ACCOUNT_LOGIN);
-    
-    int ip1 = (int)((terminalBuild % 255) + 1);
-    int ip2 = (int)((accountNumber % 255) + 1);
-    int ip3 = (int)(((terminalBuild + accountNumber) % 255) + 1);
-    int ip4 = (int)(((terminalBuild * 2 + accountNumber) % 255) + 1);
-    
-    // Ensure valid IP ranges
-    if(ip1 > 223) ip1 = ip1 % 223 + 1;
-    if(ip2 > 255) ip2 = ip2 % 255;
-    if(ip3 > 255) ip3 = ip3 % 255;
-    if(ip4 > 255) ip4 = ip4 % 255;
-    
-    return IntegerToString(ip1) + "." + IntegerToString(ip2) + "." + IntegerToString(ip3) + "." + IntegerToString(ip4);
-}
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
-//+------------------------------------------------------------------+
-//| Generate Complete License Package                                |
-//+------------------------------------------------------------------+
-void GenerateLicensePackage()
-{
-    Print("🔧 === PIPSASASSIN SWING EA - LICENSE GENERATOR ===");
-    Print("🏭 Wolf FX Trading Academy 2025 - License Creation System");
-    Print("════════════════════════════════════════════════════════");
-    
-    // Generate license components
-    if(CustomLicenseKey != "" && GenerateNewLicense == false) {
-        generatedLicenseKey = CustomLicenseKey;
-        Print("🔑 Using Custom License Key: " + generatedLicenseKey);
-    } else {
-        generatedLicenseKey = GenerateLicenseKey(LicenseType);
-        Print("🔑 Generated License Key: " + generatedLicenseKey);
-    }
-    
-    if(CustomPassword != "") {
-        generatedPassword = CustomPassword;
-        Print("🔐 Using Custom Password: " + generatedPassword);
-    } else {
-        generatedPassword = GenerateActivationPassword();
-        Print("🔐 Generated Password: " + generatedPassword);
-    }
-    
-    generatedExpiry = CalculateExpiryDate(LicenseType, ExpiryDays);
-    hardwareFingerprint = GenerateHardwareFingerprint();
-    string ipLock = GenerateIPLock();
-    
-    Print("⏰ Expiry Date: " + TimeToString(generatedExpiry, TIME_DATE|TIME_SECONDS));
-    Print("🖥️ Hardware Fingerprint: " + hardwareFingerprint);
-    Print("🌐 IP Lock: " + ipLock);
-    Print("════════════════════════════════════════════════════════");
-    
-    // Display license information
-    Print("📋 === GENERATED LICENSE INFORMATION ===");
-    Print("👤 Customer Name: " + CustomerName);
-    Print("📧 Customer Email: " + CustomerEmail);
-    Print("🏷️ License Type: " + LicenseType);
-    Print("🔑 License Key: " + generatedLicenseKey);
-    Print("🔐 Activation Password: " + generatedPassword);
-    Print("⏰ Valid Until: " + TimeToString(generatedExpiry, TIME_DATE|TIME_SECONDS));
-    Print("🖥️ Hardware Binding: " + hardwareFingerprint);
-    Print("🌐 IP Binding: " + ipLock);
-    Print("════════════════════════════════════════════════════════");
-    
-    // Generate EA configuration code
-    GenerateEAConfigurationCode();
-    
-    // Generate validation test
-    TestLicenseValidation();
-}
+        .copy-btn {
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid #ffd700;
+            color: #ffd700;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
 
-//+------------------------------------------------------------------+
-//| Generate EA Configuration Code                                   |
-//+------------------------------------------------------------------+
-void GenerateEAConfigurationCode()
-{
-    Print("📝 === EA CONFIGURATION CODE ===");
-    Print("// Copy this code into your EA's license configuration section:");
-    Print("");
-    Print("//--- License Protection Variables");
-    Print("string VALID_LICENSE = \"" + generatedLicenseKey + "\";");
-    Print("string VALID_PASSWORD = \"" + generatedPassword + "\";");
-    Print("string CUSTOMER_NAME = \"" + CustomerName + "\";");
-    Print("string CUSTOMER_EMAIL = \"" + CustomerEmail + "\";");
-    Print("string LICENSE_TYPE = \"" + LicenseType + "\";");
-    Print("datetime EXPIRY_DATE = D'" + TimeToString(generatedExpiry, TIME_DATE) + " 23:59:59';");
-    Print("string LOCKED_IP_ADDRESS = \"" + GenerateIPLock() + "\";");
-    Print("");
-    Print("// User input configuration:");
-    Print("input string LICENSE_KEY = \"" + generatedLicenseKey + "\";");
-    Print("input string ACTIVATION_PASSWORD = \"" + generatedPassword + "\";");
-    Print("════════════════════════════════════════════════════════");
-}
+        .copy-btn:hover {
+            background: rgba(255, 215, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 PIPSASASSIN SWING EA</h1>
+            <p>Complete License Management System | Wolf FX Trading Academy 2025</p>
+        </div>
 
-//+------------------------------------------------------------------+
-//| Test License Validation                                          |
-//+------------------------------------------------------------------+
-void TestLicenseValidation()
-{
-    Print("🧪 === LICENSE VALIDATION TEST ===");
-    
-    // Test license key validation
-    bool licenseKeyValid = (generatedLicenseKey != "");
-    Print("🔑 License Key Format: " + (licenseKeyValid ? "✅ VALID" : "❌ INVALID"));
-    
-    // Test password validation
-    bool passwordValid = (StringLen(generatedPassword) >= 8);
-    Print("🔐 Password Strength: " + (passwordValid ? "✅ STRONG" : "❌ WEAK"));
-    
-    // Test expiry date
-    bool expiryValid = (generatedExpiry > TimeCurrent());
-    Print("⏰ Expiry Status: " + (expiryValid ? "✅ VALID" : "❌ EXPIRED"));
-    
-    // Test hardware fingerprint
-    bool hardwareValid = (StringLen(hardwareFingerprint) > 0);
-    Print("🖥️ Hardware Binding: " + (hardwareValid ? "✅ ACTIVE" : "❌ INACTIVE"));
-    
-    // Overall validation result
-    bool overallValid = licenseKeyValid && passwordValid && expiryValid && hardwareValid;
-    Print("🎯 Overall License Status: " + (overallValid ? "✅ READY FOR DEPLOYMENT" : "❌ NEEDS ATTENTION"));
-    
-    if(overallValid) {
-        Print("✅ License package generated successfully!");
-        Print("🚀 Ready to deploy to customer: " + CustomerName);
-    } else {
-        Print("❌ License generation failed - please check configuration!");
-    }
-    
-    Print("════════════════════════════════════════════════════════");
-}
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('generator')">🔧 License Generator</button>
+            <button class="nav-tab" onclick="showTab('validator')">🔍 License Validator</button>
+            <button class="nav-tab" onclick="showTab('dashboard')">📊 Management Dashboard</button>
+            <button class="nav-tab" onclick="showTab('database')">💾 License Database</button>
+        </div>
 
-//+------------------------------------------------------------------+
-//| Generate License Report                                          |
-//+------------------------------------------------------------------+
-void GenerateLicenseReport()
-{
-    string filename = "PIPSASASSIN_License_" + CustomerName + "_" + TimeToString(TimeCurrent(), TIME_DATE) + ".txt";
-    
-    Print("📄 === GENERATING LICENSE REPORT ===");
-    Print("📁 Report File: " + filename);
-    Print("💾 Saving license details for customer records...");
-    
-    // Note: In a real implementation, you would write to a file here
-    // For MT5 script, we'll just display the report format
-    
-    Print("");
-    Print("=== PIPSASASSIN SWING EA LICENSE REPORT ===");
-    Print("Generated: " + TimeToString(TimeCurrent(), TIME_DATE|TIME_SECONDS));
-    Print("Generator: Wolf FX Trading Academy");
-    Print("");
-    Print("CUSTOMER INFORMATION:");
-    Print("- Name: " + CustomerName);
-    Print("- Email: " + CustomerEmail);
-    Print("- License Type: " + LicenseType);
-    Print("");
-    Print("LICENSE DETAILS:");
-    Print("- License Key: " + generatedLicenseKey);
-    Print("- Activation Password: " + generatedPassword);
-    Print("- Valid Until: " + TimeToString(generatedExpiry, TIME_DATE|TIME_SECONDS));
-    Print("- Hardware Fingerprint: " + hardwareFingerprint);
-    Print("- IP Lock: " + GenerateIPLock());
-    Print("");
-    Print("DEPLOYMENT INSTRUCTIONS:");
-    Print("1. Provide customer with License Key and Activation Password");
-    Print("2. Customer enters these in EA input parameters");
-    Print("3. EA will validate against hardware fingerprint");
-    Print("4. License expires on: " + TimeToString(generatedExpiry, TIME_DATE));
-    Print("5. Contact support for renewals or issues");
-    Print("");
-    Print("=== END OF REPORT ===");
-    Print("════════════════════════════════════════════════════════");
-}
+        <!-- License Generator Tab -->
+        <div id="generator" class="tab-content active">
+            <h2>🔧 License Generator</h2>
+            
+            <div class="form-grid">
+                <div>
+                    <h3>👤 Customer Information</h3>
+                    <div class="form-group">
+                        <label for="customerName">Customer Name *</label>
+                        <input type="text" id="customerName" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerEmail">Customer Email *</label>
+                        <input type="email" id="customerEmail" placeholder="customer@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerCompany">Company</label>
+                        <input type="text" id="customerCompany" placeholder="Wolf FX Trading Academy" value="Wolf FX Trading Academy">
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">Phone</label>
+                        <input type="text" id="customerPhone" placeholder="+1-555-0123">
+                    </div>
+                </div>
 
-//+------------------------------------------------------------------+
-//| Script Start Function                                            |
-//+------------------------------------------------------------------+
-void OnStart()
-{
-    Print("🚀 PIPSASASSIN SWING EA - LICENSE GENERATOR STARTED");
-    Print("🕒 Start Time: " + TimeToString(TimeCurrent(), TIME_DATE|TIME_SECONDS));
-    Print("════════════════════════════════════════════════════════");
-    
-    // Initialize random seed
-    MathSrand((int)TimeCurrent());
-    
-    // Generate complete license package
-    GenerateLicensePackage();
-    
-    // Generate detailed report
-    GenerateLicenseReport();
-    
-    Print("🎯 LICENSE GENERATION COMPLETED SUCCESSFULLY!");
-    Print("📧 Send license details to customer: " + CustomerEmail);
-    Print("🔐 License Key: " + generatedLicenseKey);
-    Print("🔑 Password: " + generatedPassword);
-    Print("⏰ Valid Until: " + TimeToString(generatedExpiry, TIME_DATE));
-    Print("════════════════════════════════════════════════════════");
-}
+                <div>
+                    <h3>🏷️ License Configuration</h3>
+                    <div class="form-group">
+                        <label for="licenseType">License Type *</label>
+                        <select id="licenseType" onchange="updatePricing()">
+                            <option value="DEMO">🆓 DEMO - 1 Day Trial (FREE)</option>
+                            <option value="WEEKLY">📅 WEEKLY - 7 Days ($50.00)</option>
+                            <option value="QUARTERLY">📈 QUARTERLY - 90 Days ($250.00)</option>
+                            <option value="SIXMONTHS">📊 6 MONTHS - 180 Days ($550.00) ⭐ NEW</option>
+                            <option value="ANNUAL">🗓️ ANNUAL - 1 Year ($1,000.00) ⭐ NEW</option>
+                            <option value="LIFETIME" selected>♾️ LIFETIME - 100 Years ($2,000.00) ⭐ UPDATED</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="customDays">Custom Days (0 = use default)</label>
+                        <input type="number" id="customDays" min="0" max="3650" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="maxActivations">Max Activations</label>
+                        <input type="number" id="maxActivations" min="1" max="10" value="1">
+                    </div>
+                </div>
+
+                <div>
+                    <h3>🔐 Security Settings</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enableHardwareLock" checked>
+                        <label for="enableHardwareLock">Enable Hardware Binding</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enableIPLock" checked>
+                        <label for="enableIPLock">Enable IP Address Binding</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="generateCustomKey">
+                        <label for="generateCustomKey">Use Custom License Key</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="customLicenseKey">Custom License Key</label>
+                        <input type="text" id="customLicenseKey" placeholder="PIPS-L001-CUSTOM-KEY-1234" disabled>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="generateCustomPassword">
+                        <label for="generateCustomPassword">Use Custom Password</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="customPassword">Custom Activation Password</label>
+                        <input type="text" id="customPassword" placeholder="WOLF2025SWING" disabled>
+                    </div>
+                </div>
+
+                <div>
+                    <h3>⚙️ Generation Options</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="createReport" checked>
+                        <label for="createReport">Create Detailed Report</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="createEACode" checked>
+                        <label for="createEACode">Generate EA Configuration</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="validateLicense" checked>
+                        <label for="validateLicense">Validate Generated License</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="licenseCount">Number of Licenses</label>
+                        <input type="number" id="licenseCount" min="1" max="100" value="1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="generateLicense()">
+                    🚀 Generate License
+                </button>
+                <button class="btn btn-secondary" onclick="clearGeneratorForm()">
+                    🗑️ Clear Form
+                </button>
+                <button class="btn btn-secondary" onclick="exportLicenses()">
+                    📄 Export Licenses (JSON)
+                </button>
+                <button class="btn btn-primary" onclick="exportLicenseEmail()" style="background: linear-gradient(45deg, #00ff88, #00d4aa);">
+                    📧 Export Activation Email
+                </button>
+            </div>
+
+            <div id="generatorResults" class="results-container" style="display: none;">
+                <!-- Generated licenses will appear here -->
+            </div>
+        </div>
+
+        <!-- License Validator Tab -->
+        <div id="validator" class="tab-content">
+            <h2>🔍 License Validator</h2>
+            
+            <div class="form-grid">
+                <div>
+                    <h3>🔑 License Information</h3>
+                    <div class="form-group">
+                        <label for="validateLicenseKey">License Key *</label>
+                        <input type="text" id="validateLicenseKey" placeholder="PIPS-L001-ABCD-EFGH-1234">
+                    </div>
+                    <div class="form-group">
+                        <label for="validatePassword">Activation Password *</label>
+                        <input type="text" id="validatePassword" placeholder="WOLF2025SWING">
+                    </div>
+                </div>
+
+                <div>
+                    <h3>👤 Customer Verification</h3>
+                    <div class="form-group">
+                        <label for="validateCustomerName">Customer Name</label>
+                        <input type="text" id="validateCustomerName" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="validateCustomerEmail">Customer Email</label>
+                        <input type="email" id="validateCustomerEmail" placeholder="customer@email.com">
+                    </div>
+                </div>
+
+                <div>
+                    <h3>⚙️ Validation Options</h3>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="checkExpiry" checked>
+                        <label for="checkExpiry">Check Expiry Date</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="checkHardware" checked>
+                        <label for="checkHardware">Check Hardware Binding</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="checkIPAddress" checked>
+                        <label for="checkIPAddress">Check IP Address</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="detailedReport" checked>
+                        <label for="detailedReport">Generate Detailed Report</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="validateLicenseKey()">
+                    🔍 Validate License
+                </button>
+                <button class="btn btn-secondary" onclick="clearValidatorForm()">
+                    🗑️ Clear Form
+                </button>
+                <button class="btn btn-secondary" onclick="testSampleLicenses()">
+                    🧪 Test Sample Licenses
+                </button>
+            </div>
+
+            <div id="validatorResults" class="results-container" style="display: none;">
+                <!-- Validation results will appear here -->
+            </div>
+        </div>
+
+        <!-- Management Dashboard Tab -->
+        <div id="dashboard" class="tab-content">
+            <h2>📊 Management Dashboard</h2>
+            
+            <div id="dashboardStats" class="stats-grid">
+                <!-- Statistics will be populated here -->
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="refreshDashboard()">
+                    🔄 Refresh Dashboard
+                </button>
+                <button class="btn btn-secondary" onclick="exportReport()">
+                    📄 Export Report
+                </button>
+                <button class="btn btn-secondary" onclick="showExpiringLicenses()">
+                    ⚠️ Show Expiring Licenses
+                </button>
+            </div>
+
+            <div id="dashboardResults" class="results-container">
+                <!-- Dashboard content will appear here -->
+            </div>
+        </div>
+
+        <!-- License Database Tab -->
+        <div id="database" class="tab-content">
+            <h2>💾 License Database</h2>
+            
+            <div class="form-grid">
+                <div>
+                    <h3>🔍 Filter Options</h3>
+                    <div class="form-group">
+                        <label for="filterType">License Type</label>
+                        <select id="filterType">
+                            <option value="">All Types</option>
+                            <option value="DEMO">Demo</option>
+                            <option value="WEEKLY">Weekly</option>
+                            <option value="QUARTERLY">Quarterly</option>
+                            <option value="SIXMONTHS">6 Months</option>
+                            <option value="ANNUAL">Annual</option>
+                            <option value="LIFETIME">Lifetime</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filterStatus">Status</label>
+                        <select id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="expired">Expired</option>
+                            <option value="deactivated">Deactivated</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <h3>🔧 License Actions</h3>
+                    <div class="form-group">
+                        <label for="actionLicenseKey">License Key</label>
+                        <input type="text" id="actionLicenseKey" placeholder="PIPS-L001-ABCD-EFGH-1234">
+                    </div>
+                    <div class="form-group">
+                        <label for="extensionDays">Extension Days</label>
+                        <input type="number" id="extensionDays" min="1" max="3650" value="30">
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="loadDatabase()">
+                    📊 Load Database
+                </button>
+                <button class="btn btn-secondary" onclick="filterDatabase()">
+                    🔍 Apply Filters
+                </button>
+                <button class="btn btn-secondary" onclick="extendLicense()">
+                    ⏰ Extend License
+                </button>
+                <button class="btn btn-danger" onclick="deactivateLicense()">
+                    🚫 Deactivate License
+                </button>
+            </div>
+
+            <div id="databaseResults" class="results-container">
+                <!-- Database content will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for displaying detailed information -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalContent">
+                <!-- Modal content will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let generatedLicenses = [];
+        let licenseDatabase = [];
+        let currentTab = 'generator';
+
+        // Updated License templates with new comprehensive pricing tiers
+        const licenseTemplates = {
+            'DEMO': { prefix: 'PIPS-D', days: 1, price: 0.00, description: '🆓 DEMO - 1 Day Trial', emoji: '🆓' },
+            'WEEKLY': { prefix: 'PIPS-W', days: 7, price: 50.00, description: '📅 WEEKLY - 7 Days', emoji: '📅' },
+            'QUARTERLY': { prefix: 'PIPS-Q', days: 90, price: 250.00, description: '📈 QUARTERLY - 90 Days', emoji: '📈' },
+            'SIXMONTHS': { prefix: 'PIPS-6M', days: 180, price: 550.00, description: '📊 6 MONTHS - 180 Days', emoji: '📊' },
+            'ANNUAL': { prefix: 'PIPS-A', days: 365, price: 1000.00, description: '🗓️ ANNUAL - 1 Year', emoji: '🗓️' },
+            'LIFETIME': { prefix: 'PIPS-L', days: 36500, price: 2000.00, description: '♾️ LIFETIME - 100 Years', emoji: '♾️' }
+        };
+
+        // Updated sample license database with new pricing tiers
+        const sampleLicenses = [
+            {
+                licenseKey: 'PIPS-L001-WOLF-2025-1234',
+                password: 'WOLF2025SWING',
+                customerName: 'John Doe',
+                customerEmail: 'john@email.com',
+                customerCompany: 'Wolf FX Trading Academy',
+                customerPhone: '+1-555-0123',
+                licenseType: 'LIFETIME',
+                creationDate: new Date('2025-01-15'),
+                expiryDate: new Date('2125-01-15'), // 100 years
+                hardwareFingerprint: '1234-5678-90',
+                ipAddress: '192.168.1.100',
+                isActive: true,
+                activationCount: 1,
+                maxActivations: 1,
+                price: 2000.00,
+                securityHash: 'SEC123456',
+                lastActivation: new Date('2025-01-16'),
+                notes: 'VIP Customer - Lifetime'
+            },
+            {
+                licenseKey: 'PIPS-A001-GOLD-2025-5678',
+                password: 'TRADE2025WIN',
+                customerName: 'Jane Smith',
+                customerEmail: 'jane@email.com',
+                customerCompany: 'Wolf FX Trading Academy',
+                customerPhone: '+1-555-0124',
+                licenseType: 'ANNUAL',
+                creationDate: new Date('2025-01-10'),
+                expiryDate: new Date('2026-01-10'),
+                hardwareFingerprint: '2345-6789-01',
+                ipAddress: '192.168.1.101',
+                isActive: true,
+                activationCount: 1,
+                maxActivations: 1,
+                price: 1000.00,
+                securityHash: 'SEC123457',
+                lastActivation: new Date('2025-01-11'),
+                notes: 'Premium Client - Annual'
+            },
+            {
+                licenseKey: 'PIPS-6M01-FAST-2025-9999',
+                password: 'FAST2025PROFIT',
+                customerName: 'Mike Johnson',
+                customerEmail: 'mike@email.com',
+                customerCompany: 'Wolf FX Trading Academy',
+                customerPhone: '+1-555-0125',
+                licenseType: 'SIXMONTHS',
+                creationDate: new Date('2025-01-20'),
+                expiryDate: new Date('2025-07-18'), // 180 days
+                hardwareFingerprint: '3456-7890-12',
+                ipAddress: '192.168.1.102',
+                isActive: true,
+                activationCount: 1,
+                maxActivations: 1,
+                price: 550.00,
+                securityHash: 'SEC123458',
+                lastActivation: new Date('2025-01-21'),
+                notes: 'New 6-Month Plan Customer'
+            },
+            {
+                licenseKey: 'PIPS-Q001-TRADER-2025-7777',
+                password: 'QUARTER2025TRADE',
+                customerName: 'Sarah Wilson',
+                customerEmail: 'sarah@email.com',
+                customerCompany: 'Wolf FX Trading Academy',
+                customerPhone: '+1-555-0127',
+                licenseType: 'QUARTERLY',
+                creationDate: new Date('2025-01-01'),
+                expiryDate: new Date('2025-04-01'),
+                hardwareFingerprint: '5678-9012-34',
+                ipAddress: '192.168.1.104',
+                isActive: true,
+                activationCount: 1,
+                maxActivations: 1,
+                price: 250.00,
+                securityHash: 'SEC123460',
+                lastActivation: new Date('2025-01-02'),
+                notes: 'Quarterly Plan'
+            },
+            {
+                licenseKey: 'PIPS-W001-WEEK-2025-8888',
+                password: 'WEEKLY2025TRADE',
+                customerName: 'Alex Brown',
+                customerEmail: 'alex@email.com',
+                customerCompany: 'Wolf FX Trading Academy',
+                customerPhone: '+1-555-0128',
+                licenseType: 'WEEKLY',
+                creationDate: new Date('2025-01-25'),
+                expiryDate: new Date('2025-02-01'),
+                hardwareFingerprint: '6789-0123-45',
+                ipAddress: '192.168.1.105',
+                isActive: true,
+                activationCount: 1,
+                maxActivations: 1,
+                price: 50.00,
+                securityHash: 'SEC123461',
+                lastActivation: new Date('2025-01-26'),
+                notes: 'Weekly Plan Customer'
+            },
+            {
+                licenseKey: 'PIPS-D001-TEST-DEMO-1111',
+                password: 'DEMO2025TEST',
+                customerName: 'Demo User',
+                customerEmail: 'demo@email.com',
+                customerCompany: 'Wolf FX Trading Academy',
+                customerPhone: '+1-555-0126',
+                licenseType: 'DEMO',
+                creationDate: new Date('2025-01-05'),
+                expiryDate: new Date('2025-01-06'),
+                hardwareFingerprint: '4567-8901-23',
+                ipAddress: '192.168.1.103',
+                isActive: false,
+                activationCount: 1,
+                maxActivations: 1,
+                price: 0.00,
+                securityHash: 'SEC123459',
+                lastActivation: new Date('2025-01-06'),
+                notes: 'Expired Demo'
+            }
+        ];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            licenseDatabase = [...sampleLicenses];
+            updatePricing();
+            
+            // Enable/disable custom license key input based on checkbox
+            document.getElementById('generateCustomKey').addEventListener('change', function() {
+                const customKeyInput = document.getElementById('customLicenseKey');
+                customKeyInput.disabled = !this.checked;
+                if (!this.checked) customKeyInput.value = '';
+            });
+            
+            // Enable/disable custom password input based on checkbox
+            document.getElementById('generateCustomPassword').addEventListener('change', function() {
+                const customPasswordInput = document.getElementById('customPassword');
+                customPasswordInput.disabled = !this.checked;
+                if (!this.checked) customPasswordInput.value = '';
+            });
+            
+            console.log('🚀 PIPSASASSIN License Management System Initialized');
+        }
+
+        // Tab management
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all nav tabs
+            const navTabs = document.querySelectorAll('.nav-tab');
+            navTabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            currentTab = tabName;
+            
+            // Load specific tab content if needed
+            if (tabName === 'dashboard') {
+                refreshDashboard();
+            } else if (tabName === 'database') {
+                loadDatabase();
+            }
+        }
+
+        // Utility functions
+        function generateRandomString(length, includeNumbers = true, includeLetters = true) {
+            let chars = '';
+            if (includeNumbers) chars += '0123456789';
+            if (includeLetters) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        function generateSecureLicenseKey(licenseType) {
+            const template = licenseTemplates[licenseType];
+            const segment1 = generateRandomString(3, true, false);
+            const segment2 = generateRandomString(4, true, true);
+            const segment3 = generateRandomString(4, true, true);
+            const timeCode = Date.now().toString().slice(-4);
+            
+            return `${template.prefix}${segment1}-${segment2}-${segment3}-${timeCode}`;
+        }
+
+        function generateSecurePassword() {
+            const words = ['WOLF', 'TRADE', 'SWING', 'PROFIT', 'ELITE', 'GOLD', 'FOREX', 'PIPS'];
+            const years = ['2025', '2026', '2027'];
+            const actions = ['SWING', 'TRADE', 'PROFIT', 'WIN', 'EARN', 'GAIN'];
+            
+            const word = words[Math.floor(Math.random() * words.length)];
+            const year = years[Math.floor(Math.random() * years.length)];
+            const action = actions[Math.floor(Math.random() * actions.length)];
+            
+            return `${word}${year}${action}`;
+        }
+
+        function calculateExpiryDate(licenseType, customDays = 0) {
+            const now = new Date();
+            
+            if (licenseType === 'LIFETIME') {
+                // 100 years from now
+                const lifetime = new Date(now);
+                lifetime.setFullYear(lifetime.getFullYear() + 100);
+                return lifetime;
+            }
+            
+            const days = customDays > 0 ? customDays : licenseTemplates[licenseType].days;
+            const expiryDate = new Date(now);
+            expiryDate.setDate(expiryDate.getDate() + days);
+            
+            return expiryDate;
+        }
+
+        function generateHardwareFingerprint() {
+            const segments = [
+                Math.floor(Math.random() * 9999).toString().padStart(4, '0'),
+                Math.floor(Math.random() * 9999).toString().padStart(4, '0'),
+                Math.floor(Math.random() * 99).toString().padStart(2, '0')
+            ];
+            return segments.join('-');
+        }
+
+        function generateIPAddress() {
+            const ip = [
+                Math.floor(Math.random() * 223) + 1,
+                Math.floor(Math.random() * 255) + 1,
+                Math.floor(Math.random() * 255) + 1,
+                Math.floor(Math.random() * 254) + 1
+            ];
+            return ip.join('.');
+        }
+
+        function generateSecurityHash(licenseKey, customerEmail) {
+            let hash = 0;
+            const combined = licenseKey + customerEmail + Date.now();
+            
+            for (let i = 0; i < combined.length; i++) {
+                hash += combined.charCodeAt(i) * (i + 1);
+            }
+            
+            return Math.abs(hash).toString();
+        }
+
+        function updatePricing() {
+            const licenseType = document.getElementById('licenseType').value;
+            const template = licenseTemplates[licenseType];
+            
+            // Update the select option text to show current pricing
+            const selectElement = document.getElementById('licenseType');
+            const options = selectElement.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                const optionType = options[i].value;
+                const optionTemplate = licenseTemplates[optionType];
+                let priceText = optionTemplate.price === 0 ? 'FREE' : `${optionTemplate.price.toFixed(2)}`;
+                options[i].text = `${optionTemplate.description} - ${priceText}`;
+            }
+        }
+
+        // License Generator Functions
+        function generateLicense() {
+            const customerName = document.getElementById('customerName').value.trim();
+            const customerEmail = document.getElementById('customerEmail').value.trim();
+            
+            if (!customerName || !customerEmail) {
+                showAlert('Please fill in required customer information.', 'error');
+                return;
+            }
+            
+            const licenseCount = parseInt(document.getElementById('licenseCount').value) || 1;
+            const licenses = [];
+            
+            for (let i = 0; i < licenseCount; i++) {
+                const license = createLicense(customerName, customerEmail, i);
+                licenses.push(license);
+                
+                // Add to global arrays
+                generatedLicenses.push(license);
+                licenseDatabase.push(license);
+            }
+            
+            displayGeneratedLicenses(licenses);
+            showAlert(`Successfully generated ${licenseCount} license(s)!`, 'success');
+        }
+
+        function createLicense(customerName, customerEmail, index = 0) {
+            const licenseType = document.getElementById('licenseType').value;
+            const customDays = parseInt(document.getElementById('customDays').value) || 0;
+            const maxActivations = parseInt(document.getElementById('maxActivations').value) || 1;
+            const enableHardwareLock = document.getElementById('enableHardwareLock').checked;
+            const enableIPLock = document.getElementById('enableIPLock').checked;
+            const generateCustomKey = document.getElementById('generateCustomKey').checked;
+            const customLicenseKey = document.getElementById('customLicenseKey').value.trim();
+            const generateCustomPassword = document.getElementById('generateCustomPassword').checked;
+            const customPassword = document.getElementById('customPassword').value.trim();
+            
+            // Adjust customer info for multiple licenses
+            let finalCustomerName = customerName;
+            let finalCustomerEmail = customerEmail;
+            
+            if (index > 0) {
+                finalCustomerName += `_${index + 1}`;
+                const emailParts = customerEmail.split('@');
+                finalCustomerEmail = `${emailParts[0]}_${index + 1}@${emailParts[1]}`;
+            }
+            
+            const license = {
+                licenseKey: generateCustomKey && customLicenseKey ? customLicenseKey : generateSecureLicenseKey(licenseType),
+                password: generateCustomPassword && customPassword ? customPassword : generateSecurePassword(),
+                customerName: finalCustomerName,
+                customerEmail: finalCustomerEmail,
+                customerCompany: document.getElementById('customerCompany').value.trim(),
+                customerPhone: document.getElementById('customerPhone').value.trim(),
+                licenseType: licenseType,
+                creationDate: new Date(),
+                expiryDate: calculateExpiryDate(licenseType, customDays),
+                hardwareFingerprint: enableHardwareLock ? generateHardwareFingerprint() : 'DISABLED',
+                ipAddress: enableIPLock ? generateIPAddress() : 'DISABLED',
+                isActive: true,
+                activationCount: 0,
+                maxActivations: maxActivations,
+                price: licenseTemplates[licenseType].price,
+                securityHash: '',
+                lastActivation: null,
+                notes: 'Newly Generated'
+            };
+            
+            license.securityHash = generateSecurityHash(license.licenseKey, license.customerEmail);
+            
+            return license;
+        }
+
+        function displayGeneratedLicenses(licenses) {
+            const resultsContainer = document.getElementById('generatorResults');
+            let html = '<h3>🎉 Generated Licenses</h3>';
+            
+            licenses.forEach((license, index) => {
+                const daysRemaining = license.licenseType === 'LIFETIME' ? '∞' : 
+                    Math.ceil((license.expiryDate - new Date()) / (1000 * 60 * 60 * 24));
+                
+                html += `
+                    <div class="license-card">
+                        <h3>License #${index + 1} - ${license.customerName}</h3>
+                        <div class="license-info">
+                            <div class="info-item">
+                                <div class="info-label">License Key</div>
+                                <div>${license.licenseKey} <button class="copy-btn" onclick="copyToClipboard('${license.licenseKey}')">Copy</button></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Activation Password</div>
+                                <div>${license.password} <button class="copy-btn" onclick="copyToClipboard('${license.password}')">Copy</button></div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">License Type</div>
+                                <div>${license.licenseType} (${license.price.toFixed(2)})</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Expiry Date</div>
+                                <div>${license.expiryDate.toLocaleDateString()}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Days Remaining</div>
+                                <div>${daysRemaining}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Hardware Lock</div>
+                                <div>${license.hardwareFingerprint}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">IP Lock</div>
+                                <div>${license.ipAddress}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Security Hash</div>
+                                <div>${license.securityHash}</div>
+                            </div>
+                        </div>
+                        
+                        ${document.getElementById('createEACode').checked ? generateEACode(license) : ''}
+                        
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-secondary" onclick="showLicenseDetails('${license.licenseKey}')">View Details</button>
+                            <button class="btn btn-secondary" onclick="validateGeneratedLicense('${license.licenseKey}')">Validate</button>
+                            <button class="btn btn-primary" onclick="exportSingleLicenseEmail('${license.licenseKey}')" style="background: linear-gradient(45deg, #00ff88, #00d4aa);">
+                                📧 Export Email
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            resultsContainer.innerHTML = html;
+            resultsContainer.style.display = 'block';
+        }
+
+        function generateEACode(license) {
+            return `
+                <div class="code-block">
+                    <strong>🔧 EA Configuration Code:</strong>
+                    <div style="margin-top: 10px;">
+                        <code>
+//--- License Protection Variables<br>
+string VALID_LICENSE = "${license.licenseKey}";<br>
+string VALID_PASSWORD = "${license.password}";<br>
+string CUSTOMER_NAME = "${license.customerName}";<br>
+string CUSTOMER_EMAIL = "${license.customerEmail}";<br>
+string LICENSE_TYPE = "${license.licenseType}";<br>
+datetime EXPIRY_DATE = D'${license.expiryDate.toISOString().split('T')[0].replace(/-/g, '.')} 23:59:59';<br>
+${license.ipAddress !== 'DISABLED' ? `string LOCKED_IP_ADDRESS = "${license.ipAddress}";` : '// IP Lock disabled'}<br><br>
+
+//--- Input Parameters<br>
+input string LICENSE_KEY = "${license.licenseKey}";<br>
+input string ACTIVATION_PASSWORD = "${license.password}";
+                        </code>
+                        <button class="copy-btn" onclick="copyEACode('${license.licenseKey}')">Copy All</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function clearGeneratorForm() {
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerEmail').value = '';
+            document.getElementById('customerCompany').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('customDays').value = '0';
+            document.getElementById('maxActivations').value = '1';
+            document.getElementById('licenseCount').value = '1';
+            document.getElementById('customLicenseKey').value = '';
+            document.getElementById('customPassword').value = '';
+            document.getElementById('generateCustomKey').checked = false;
+            document.getElementById('generateCustomPassword').checked = false;
+            document.getElementById('customLicenseKey').disabled = true;
+            document.getElementById('customPassword').disabled = true;
+            document.getElementById('generatorResults').style.display = 'none';
+        }
+
+        // License Validator Functions
+        function validateLicenseKey() {
+            const licenseKey = document.getElementById('validateLicenseKey').value.trim();
+            const password = document.getElementById('validatePassword').value.trim();
+            
+            if (!licenseKey || !password) {
+                showAlert('Please enter license key and password.', 'error');
+                return;
+            }
+            
+            const customerName = document.getElementById('validateCustomerName').value.trim();
+            const customerEmail = document.getElementById('validateCustomerEmail').value.trim();
+            
+            const validationResult = performValidation(licenseKey, password, customerName, customerEmail);
+            displayValidationResults(validationResult);
+        }
+
+        function performValidation(licenseKey, password, customerName = '', customerEmail = '') {
+            const result = {
+                isValid: false,
+                licenseKeyFound: false,
+                passwordMatch: false,
+                customerMatch: false,
+                notExpired: false,
+                hardwareMatch: false,
+                ipMatch: false,
+                formatValid: false,
+                activationAllowed: false,
+                errorMessage: '',
+                licenseType: '',
+                expiryDate: null,
+                daysRemaining: 0,
+                license: null
+            };
+            
+            // Find license in database
+            const license = licenseDatabase.find(l => l.licenseKey === licenseKey);
+            
+            if (license) {
+                result.licenseKeyFound = true;
+                result.license = license;
+                result.licenseType = license.licenseType;
+                result.expiryDate = license.expiryDate;
+                
+                // Calculate days remaining
+                const now = new Date();
+                if (license.licenseType === 'LIFETIME') {
+                    result.daysRemaining = 999999;
+                } else {
+                    result.daysRemaining = Math.ceil((license.expiryDate - now) / (1000 * 60 * 60 * 24));
+                }
+                
+                // Validate password
+                result.passwordMatch = (license.password === password);
+                
+                // Validate customer info
+                const nameMatch = !customerName || license.customerName === customerName;
+                const emailMatch = !customerEmail || license.customerEmail === customerEmail;
+                result.customerMatch = nameMatch && emailMatch;
+                
+                // Check expiry
+                result.notExpired = license.licenseType === 'LIFETIME' || license.expiryDate > now;
+                
+                // Check hardware (simulated)
+                result.hardwareMatch = true; // In real implementation, this would check actual hardware
+                
+                // Check IP (simulated)
+                result.ipMatch = true; // In real implementation, this would check actual IP
+                
+                // Check format
+                result.formatValid = validateLicenseFormat(licenseKey);
+                
+                // Check activation
+                result.activationAllowed = license.activationCount < license.maxActivations;
+                
+                // Check if license is active
+                if (!license.isActive) {
+                    result.errorMessage = 'License has been deactivated';
+                }
+                
+            } else {
+                result.errorMessage = 'License key not found in database';
+            }
+            
+            // Final validation
+            result.isValid = result.licenseKeyFound && 
+                            result.passwordMatch && 
+                            result.customerMatch && 
+                            result.notExpired && 
+                            result.hardwareMatch && 
+                            result.ipMatch && 
+                            result.activationAllowed &&
+                            (result.errorMessage === '') &&
+                            (license ? license.isActive : false);
+            
+            return result;
+        }
+
+        function validateLicenseFormat(licenseKey) {
+            const pattern = /^PIPS-[TMLQY][0-9]{3}-[A-Z0-9]{4}-[A-Z0-9]{4}-[0-9]{4}$/;
+            return pattern.test(licenseKey);
+        }
+
+        function displayValidationResults(result) {
+            const resultsContainer = document.getElementById('validatorResults');
+            
+            let statusClass = result.isValid ? 'status-active' : 'status-expired';
+            let statusText = result.isValid ? '✅ VALID LICENSE' : '❌ INVALID LICENSE';
+            
+            let html = `
+                <h3>🔍 Validation Results</h3>
+                <div class="license-card">
+                    <h3 class="${statusClass}">${statusText}</h3>
+                    
+                    <div class="license-info">
+                        <div class="info-item">
+                            <div class="info-label">License Found</div>
+                            <div class="${result.licenseKeyFound ? 'status-active' : 'status-expired'}">
+                                ${result.licenseKeyFound ? '✅ YES' : '❌ NO'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Password Match</div>
+                            <div class="${result.passwordMatch ? 'status-active' : 'status-expired'}">
+                                ${result.passwordMatch ? '✅ YES' : '❌ NO'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Customer Match</div>
+                            <div class="${result.customerMatch ? 'status-active' : 'status-expired'}">
+                                ${result.customerMatch ? '✅ YES' : '❌ NO'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Not Expired</div>
+                            <div class="${result.notExpired ? 'status-active' : 'status-expired'}">
+                                ${result.notExpired ? '✅ YES' : '❌ NO'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Hardware Match</div>
+                            <div class="${result.hardwareMatch ? 'status-active' : 'status-expired'}">
+                                ${result.hardwareMatch ? '✅ YES' : '❌ NO'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">IP Match</div>
+                            <div class="${result.ipMatch ? 'status-active' : 'status-expired'}">
+                                ${result.ipMatch ? '✅ YES' : '❌ NO'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Activation Allowed</div>
+                            <div class="${result.activationAllowed ? 'status-active' : 'status-expired'}">
+                                ${result.activationAllowed ? '✅ YES' : '❌ NO'}
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Format Valid</div>
+                            <div class="${result.formatValid ? 'status-active' : 'status-expired'}">
+                                ${result.formatValid ? '✅ YES' : '❌ NO'}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${result.license ? `
+                        <div class="license-info" style="margin-top: 20px;">
+                            <div class="info-item">
+                                <div class="info-label">License Type</div>
+                                <div>${result.license.licenseType}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Expiry Date</div>
+                                <div>${result.license.expiryDate.toLocaleDateString()}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Days Remaining</div>
+                                <div>${result.daysRemaining === 999999 ? '∞ (Lifetime)' : result.daysRemaining}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Customer</div>
+                                <div>${result.license.customerName}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div>${result.license.customerEmail}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Activations</div>
+                                <div>${result.license.activationCount}/${result.license.maxActivations}</div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${result.errorMessage ? `
+                        <div class="alert alert-error" style="margin-top: 15px;">
+                            ⚠️ Error: ${result.errorMessage}
+                        </div>
+                    ` : ''}
+                    
+                    ${result.isValid ? `
+                        <div class="alert alert-success" style="margin-top: 15px;">
+                            🚀 License is valid and ready for EA activation!
+                        </div>
+                    ` : `
+                        <div class="alert alert-error" style="margin-top: 15px;">
+                            🚫 License validation failed. EA activation will be blocked.
+                        </div>
+                    `}
+                </div>
+            `;
+            
+            resultsContainer.innerHTML = html;
+            resultsContainer.style.display = 'block';
+            
+            showAlert(result.isValid ? 'License validation successful!' : 'License validation failed!', 
+                     result.isValid ? 'success' : 'error');
+        }
+
+        function testSampleLicenses() {
+            let html = '<h3>🧪 Sample License Tests</h3>';
+            
+            sampleLicenses.forEach((license, index) => {
+                const result = performValidation(license.licenseKey, license.password, license.customerName, license.customerEmail);
+                const statusClass = result.isValid ? 'status-active' : 'status-expired';
+                const statusText = result.isValid ? 'VALID' : 'INVALID';
+                
+                html += `
+                    <div class="license-card">
+                        <h4>Test #${index + 1}: ${license.customerName} (${license.licenseType})</h4>
+                        <div class="license-info">
+                            <div class="info-item">
+                                <div class="info-label">License Key</div>
+                                <div>${license.licenseKey}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Result</div>
+                                <div class="${statusClass}">${statusText}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Type</div>
+                                <div>${license.licenseType}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('validatorResults').innerHTML = html;
+            document.getElementById('validatorResults').style.display = 'block';
+        }
+
+        function clearValidatorForm() {
+            document.getElementById('validateLicenseKey').value = '';
+            document.getElementById('validatePassword').value = '';
+            document.getElementById('validateCustomerName').value = '';
+            document.getElementById('validateCustomerEmail').value = '';
+            document.getElementById('validatorResults').style.display = 'none';
+        }
+
+        // Dashboard Functions
+        function refreshDashboard() {
+            const stats = calculateStatistics();
+            displayDashboardStats(stats);
+            displayDashboardContent();
+        }
+
+        function calculateStatistics() {
+            const now = new Date();
+            const oneWeek = new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000));
+            const oneMonth = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+            
+            const stats = {
+                totalLicenses: licenseDatabase.length,
+                activeLicenses: 0,
+                expiredLicenses: 0,
+                trialLicenses: 0,
+                monthlyLicenses: 0,
+                quarterlyLicenses: 0,
+                yearlyLicenses: 0,
+                lifetimeLicenses: 0,
+                totalRevenue: 0,
+                monthlyRevenue: 0,
+                yearlyRevenue: 0,
+                lifetimeRevenue: 0,
+                expiringInWeek: 0,
+                expiringInMonth: 0,
+                averagePrice: 0,
+                uniqueCustomers: new Set()
+            };
+            
+            licenseDatabase.forEach(license => {
+                // Count by status
+                if (license.isActive && (license.expiryDate > now || license.licenseType === 'LIFETIME')) {
+                    stats.activeLicenses++;
+                } else {
+                    stats.expiredLicenses++;
+                }
+                
+                // Count by type
+                switch (license.licenseType) {
+                    case 'DEMO': stats.trialLicenses++; break;
+                    case 'WEEKLY': stats.monthlyLicenses++; stats.monthlyRevenue += license.price; break;
+                    case 'QUARTERLY': stats.quarterlyLicenses++; break;
+                    case 'SIXMONTHS': stats.quarterlyLicenses++; break; // Group with quarterly for stats
+                    case 'ANNUAL': stats.yearlyLicenses++; stats.yearlyRevenue += license.price; break;
+                    case 'LIFETIME': stats.lifetimeLicenses++; stats.lifetimeRevenue += license.price; break;
+                }
+                
+                // Total revenue
+                stats.totalRevenue += license.price;
+                
+                // Expiring soon
+                if (license.expiryDate <= oneWeek && license.expiryDate > now) {
+                    stats.expiringInWeek++;
+                }
+                if (license.expiryDate <= oneMonth && license.expiryDate > now) {
+                    stats.expiringInMonth++;
+                }
+                
+                // Unique customers
+                stats.uniqueCustomers.add(license.customerEmail);
+            });
+            
+            stats.averagePrice = stats.totalLicenses > 0 ? stats.totalRevenue / stats.totalLicenses : 0;
+            stats.uniqueCustomers = stats.uniqueCustomers.size;
+            
+            return stats;
+        }
+
+        function displayDashboardStats(stats) {
+            const statsContainer = document.getElementById('dashboardStats');
+            
+            const html = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalLicenses}</div>
+                    <div class="stat-label">Total Licenses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.activeLicenses}</div>
+                    <div class="stat-label">Active Licenses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.expiredLicenses}</div>
+                    <div class="stat-label">Expired Licenses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.uniqueCustomers}</div>
+                    <div class="stat-label">Unique Customers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalRevenue.toFixed(0)}</div>
+                    <div class="stat-label">Total Revenue</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.averagePrice.toFixed(0)}</div>
+                    <div class="stat-label">Average Price</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.expiringInWeek}</div>
+                    <div class="stat-label">Expiring This Week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.expiringInMonth}</div>
+                    <div class="stat-label">Expiring This Month</div>
+                </div>
+            `;
+            
+            statsContainer.innerHTML = html;
+        }
+
+        function displayDashboardContent() {
+            const stats = calculateStatistics();
+            const resultsContainer = document.getElementById('dashboardResults');
+            
+            let html = `
+                <h3>📊 Detailed Analytics</h3>
+                <div class="license-card">
+                    <h4>📈 Revenue Breakdown</h4>
+                    <div class="license-info">
+                        <div class="info-item">
+                            <div class="info-label">Monthly Revenue</div>
+                            <div>${stats.monthlyRevenue.toFixed(2)} (${stats.monthlyLicenses} licenses)</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Yearly Revenue</div>
+                            <div>${stats.yearlyRevenue.toFixed(2)} (${stats.yearlyLicenses} licenses)</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Lifetime Revenue</div>
+                            <div>${stats.lifetimeRevenue.toFixed(2)} (${stats.lifetimeLicenses} licenses)</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Trial Licenses</div>
+                            <div>${stats.trialLicenses} (Free)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="license-card">
+                    <h4>⚠️ Attention Required</h4>
+                    <div class="license-info">
+                        <div class="info-item">
+                            <div class="info-label">Expiring in 7 Days</div>
+                            <div class="status-expired">${stats.expiringInWeek} licenses</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Expiring in 30 Days</div>
+                            <div class="status-trial">${stats.expiringInMonth} licenses</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Already Expired</div>
+                            <div class="status-expired">${stats.expiredLicenses} licenses</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="license-card">
+                    <h4>💡 Recommendations</h4>
+                    <ul style="margin-left: 20px; color: #fff;">
+            `;
+            
+            if (stats.expiringInWeek > 0) {
+                html += `<li>📞 Contact ${stats.expiringInWeek} customers expiring in 7 days</li>`;
+            }
+            if (stats.expiringInMonth > 0) {
+                html += `<li>📧 Send renewal reminders to ${stats.expiringInMonth} customers</li>`;
+            }
+            if (stats.expiredLicenses > 0) {
+                html += `<li>🔄 Follow up with ${stats.expiredLicenses} expired customers</li>`;
+            }
+            if (stats.trialLicenses / stats.totalLicenses > 0.3) {
+                html += `<li>📈 High trial ratio - focus on conversion strategies</li>`;
+            }
+            if (stats.lifetimeRevenue > stats.monthlyRevenue + stats.yearlyRevenue) {
+                html += `<li>♾️ Strong lifetime sales - consider promoting recurring plans</li>`;
+            }
+            
+            html += `
+                    </ul>
+                </div>
