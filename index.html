@@ -82,6 +82,11 @@
                     <option value="1-WEEK">1 WEEK</option>
                 </select>
             </div>
+            <div>
+                <label for="targetEALocalID" class="label">Target EA Local ID (Optional, for IP Lock):</label>
+                <input type="text" id="targetEALocalID" class="input-field" placeholder="e.g., 10.xxx.xxx.xxx (from EA's dashboard)">
+                <p class="text-xs text-gray-400 mt-1">This is the simulated local IP/ID displayed on the EA's dashboard.</p>
+            </div>
             
             <div class="flex justify-center space-x-4 pt-4">
                 <button id="generateLicenseBtn" class="btn btn-primary">Generate License</button>
@@ -131,6 +136,7 @@
             const customerName = document.getElementById('customerName').value.trim();
             const customerEmail = document.getElementById('customerEmail').value.trim();
             const licenseType = document.getElementById('licenseType').value;
+            const targetEALocalID = document.getElementById('targetEALocalID').value.trim(); // Get target local ID
             const licenseOutputDiv = document.getElementById('licenseOutput');
             const licenseJsonTextarea = document.getElementById('licenseJson');
             const copyLicenseBtn = document.getElementById('copyLicenseBtn');
@@ -195,8 +201,8 @@
                 expiryDate: formatDateTime(expiryDate),
                 isActive: true,
                 price: 0.0,
-                hardwareFingerprint: "",
-                ipAddress: "",
+                hardwareFingerprint: "", // Left empty, determined by EA
+                ipAddress: targetEALocalID, // Use the provided target EA Local ID
                 status: "LICENSE_VALID_COMMERCIAL",
                 lastValidation: formatDateTime(creationDate),
                 isDemoMode: false,
@@ -219,7 +225,11 @@ License Key: ${fixedLicenseKey}
 Activation Password: ${fixedActivationPassword}
 License Type: ${licenseType}
 Expiry Date: ${expiryDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+${targetEALocalID ? `Target EA Local ID (for IP Lock): ${targetEALocalID}` : ''}
 ---
+
+**IMPORTANT NOTE ON IP LOCKING:**
+This EA uses a simulated IP lock based on your MetaTrader terminal's unique local ID. If you provided a "Target EA Local ID" above, the EA will only function on a MetaTrader terminal that generates that specific local ID. You can find your EA's current Local ID on its dashboard.
 
 **How to Activate Your PIPSASASSIN SWING EA:**
 
@@ -232,6 +242,7 @@ Please follow these simple steps to activate your Expert Advisor in MetaTrader 5
     * Go to the "Inputs" tab.
     * Find the input fields for "LICENSE_KEY" and "ACTIVATION_PASSWORD".
     * Carefully copy and paste the \`License Key\` and \`Activation Password\` provided above into their respective fields.
+    * **If you received a "Target EA Local ID" above, ensure your EA is running on a MetaTrader terminal that matches this ID.** You can find your EA's current Local ID on its dashboard.
     * Ensure "Allow Algo Trading" is checked on the "Common" tab.
 5.  **Confirm Activation:** Click "OK". The EA should now be active and display its dashboard on the chart.
 
